@@ -253,7 +253,7 @@ public class YoutubeCommentsInfoItemExtractor implements CommentsInfoItemExtract
     }
 
     @Override
-    public Page getReplies()
+    public Page getReplies() {
         if (commentRepliesRenderer == null) {
             return null;
         }
