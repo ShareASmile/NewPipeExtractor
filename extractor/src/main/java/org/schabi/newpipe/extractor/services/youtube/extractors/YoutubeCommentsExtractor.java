@@ -384,7 +384,7 @@ public class YoutubeCommentsExtractor extends CommentsExtractor {
         }
 
         final JsonObject countText = ajaxJson.getArray("onResponseReceivedEndpoints")
-                .getObject(0
+                .getObject(0)
                 .getObject("reloadContinuationItemsCommand")
                 .getArray("continuationItems")
                 .getObject(0)
