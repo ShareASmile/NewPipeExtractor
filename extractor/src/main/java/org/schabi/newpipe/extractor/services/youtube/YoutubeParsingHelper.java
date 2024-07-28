@@ -1375,13 +1375,9 @@ public final class YoutubeParsingHelper {
         final String url = YOUTUBEI_V1_URL + "player" + "?" + DISABLE_PRETTY_PRINT_PARAMETER
                 + "&$fields=microformat,playabilityStatus,storyboards,videoDetails";
 
-        final Map<String, List<String>> headers = new HashMap<>();
-        getYouTubeHeaders(headers);
-        headers.put("Content-Type", Collections.singletonList("application/json"));
-
         return JsonUtils.toJsonObject(getValidJsonResponseBody(
                 getDownloader().post(
-                        url, headers, body, localization)));
+                        url, getYouTubeHeaders(), body, localization)));
     }
 
     @Nonnull
