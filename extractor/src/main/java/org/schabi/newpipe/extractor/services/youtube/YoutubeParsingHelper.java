@@ -1376,8 +1376,8 @@ public final class YoutubeParsingHelper {
                 + "&$fields=microformat,playabilityStatus,storyboards,videoDetails";
 
         final Map<String, List<String>> headers = new HashMap<>();
-        addYoutubeHeaders(headers);
-        headers.put("Content-Type", singletonList("application/json"));
+        getYouTubeHeaders(headers);
+        headers.put("Content-Type", Collections.singletonList("application/json"));
 
         return JsonUtils.toJsonObject(getValidJsonResponseBody(
                 getDownloader().post(
