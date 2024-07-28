@@ -1063,7 +1063,7 @@ public class YoutubeStreamExtractor extends StreamExtractor {
         initStsFromPlayerJsIfNeeded();
 
         // Because a cpn is unique to each request, we need to generate it again
-        tvHtml5SimplyEmbed = generateContentPlaybackNonce();
+        tvHtml5SimplyEmbedCpn = generateContentPlaybackNonce();
 
         final JsonObject tvHtml5EmbedPlayerResponse = getJsonPostResponse(PLAYER,
                 createTvHtml5EmbedPlayerBody(localization, contentCountry, videoId, sts, tvHtml5SimplyEmbedCpn), localization);
