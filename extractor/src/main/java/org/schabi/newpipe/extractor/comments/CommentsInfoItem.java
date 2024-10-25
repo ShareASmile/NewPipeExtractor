@@ -5,6 +5,7 @@ import org.schabi.newpipe.extractor.Page;
 import org.schabi.newpipe.extractor.localization.DateWrapper;
 import org.schabi.newpipe.extractor.stream.Description;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class CommentsInfoItem extends InfoItem {
