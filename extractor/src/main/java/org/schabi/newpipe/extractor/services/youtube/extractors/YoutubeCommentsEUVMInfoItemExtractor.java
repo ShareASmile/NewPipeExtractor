@@ -1,7 +1,6 @@
 package org.schabi.newpipe.extractor.services.youtube.extractors;
 
 import com.grack.nanojson.JsonObject;
-import org.schabi.newpipe.extractor.Image;
 import org.schabi.newpipe.extractor.Page;
 import org.schabi.newpipe.extractor.comments.CommentsInfoItemExtractor;
 import org.schabi.newpipe.extractor.exceptions.ParsingException;
@@ -12,11 +11,9 @@ import org.schabi.newpipe.extractor.utils.Utils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.List;
 import java.util.Objects;
 
 import static org.schabi.newpipe.extractor.services.youtube.YoutubeDescriptionHelper.attributedDescriptionToHtml;
-import static org.schabi.newpipe.extractor.services.youtube.YoutubeParsingHelper.getImagesFromThumbnailsArray;
 import static org.schabi.newpipe.extractor.utils.Utils.isNullOrEmpty;
 
 /**
@@ -68,8 +65,8 @@ class YoutubeCommentsEUVMInfoItemExtractor implements CommentsInfoItemExtractor 
 
     @Nonnull
     @Override
-    public List<Image> getThumbnails() throws ParsingException {
-        return getUploaderAvatars();
+    public String getThumbnailUrl() throws ParsingException {
+        return getUploaderAvatarUrl();
     }
 
     @Override
@@ -152,20 +149,6 @@ class YoutubeCommentsEUVMInfoItemExtractor implements CommentsInfoItemExtractor 
             }
         }
         return "https://www.youtube.com/channel/" + channelId;
-    }
-
-    @Override
-    public String getUploaderName() throws ParsingException {
-        return commentEntityPayload.getObject(AUTHOR)
-                .getString("displayName");
-    }
-
-    @Nonnull
-    @Override
-    public List<Image> getUploaderAvatars() throws ParsingException {
-        return getImagesFromThumbnailsArray(commentEntityPayload.getObject("avatar")
-                .getObject("image")
-                .getArray("sources"));
     }
 
     @Override
