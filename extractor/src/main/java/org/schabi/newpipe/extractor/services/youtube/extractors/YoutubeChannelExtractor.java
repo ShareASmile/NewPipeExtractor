@@ -90,7 +90,9 @@ public class YoutubeChannelExtractor extends ChannelExtractor {
         // If the url is an URL which is not a /channel URL, we need to use the
         // navigation/resolve_url endpoint of the InnerTube API to get the channel id. Otherwise,
         // we couldn't get information about the channel associated with this URL, if there is one.
-        if (!channelId[0].equals("channel")) {
+        if (channelId[0].startsWith("UC")) {
+            id = channelId[0];
+        } else {
             final byte[] body = JsonWriter.string(prepareDesktopJsonBuilder(
                             getExtractorLocalization(), getExtractorContentCountry())
                             .value("url", "https://www.youtube.com/" + channelPath)
@@ -121,8 +123,6 @@ public class YoutubeChannelExtractor extends ChannelExtractor {
                 id = browseId;
                 redirectedChannelId = browseId;
             }
-        } else {
-            id = channelId[1];
         }
         JsonObject ajaxJson = null;
 
@@ -131,7 +131,7 @@ public class YoutubeChannelExtractor extends ChannelExtractor {
             final byte[] body = JsonWriter.string(prepareDesktopJsonBuilder(
                             getExtractorLocalization(), getExtractorContentCountry())
                             .value("browseId", id)
-                            .value("params", "EgZ2aWRlb3M%3D") // Equal to videos
+                            .value("params", "EgZ2aWRlb3PyBgQKAjoA") // Equal to videos
                             .done())
                     .getBytes(UTF_8);
 
@@ -208,6 +208,10 @@ public class YoutubeChannelExtractor extends ChannelExtractor {
                         .filter(itm -> itm.has("topicChannelDetailsRenderer"))
                         .findFirst()
                         .map(itm -> itm.getObject("topicChannelDetailsRenderer"));
+            } else if (h.has("pageHeaderRenderer")) {
+                channelHeader = Optional.of(h.getObject("pageHeaderRenderer"));
+            } else if (h.has("interactiveTabbedHeaderRenderer")) {
+                channelHeader = Optional.of(h.getObject("interactiveTabbedHeaderRenderer"));
             } else {
                 channelHeader = Optional.empty();
             }

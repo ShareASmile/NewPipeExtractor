@@ -36,6 +36,6 @@ public class BandcampPlaylistLinkHandlerFactory extends ListLinkHandlerFactory {
         }
 
         // Test whether domain is supported
-        return BandcampExtractorHelper.isSupportedDomain(url);
+        return BandcampExtractorHelper.isArtistDomain(url);
     }
 }

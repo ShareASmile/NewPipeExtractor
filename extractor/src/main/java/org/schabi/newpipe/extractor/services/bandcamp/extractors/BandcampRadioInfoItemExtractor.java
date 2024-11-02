@@ -32,6 +32,12 @@ public class BandcampRadioInfoItemExtractor implements StreamInfoItemExtractor {
 
     @Nullable
     @Override
+    public String getShortDescription() {
+        return show.getString("desc");
+    }
+
+    @Nullable
+    @Override
     public String getTextualUploadDate() {
         return show.getString("date");
     }
@@ -69,8 +75,8 @@ public class BandcampRadioInfoItemExtractor implements StreamInfoItemExtractor {
 
     @Override
     public String getUploaderName() {
-        // JSON does not contain uploader name
-        return "";
+        // The "title" field contains the title of the series, e.g. "Bandcamp Weekly".
+        return show.getString("title");
     }
 
     @Override
