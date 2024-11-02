@@ -8,6 +8,7 @@ import org.schabi.newpipe.extractor.services.youtube.extractors.YoutubeCommentsI
 import org.schabi.newpipe.extractor.stream.Description;
 import org.schabi.newpipe.extractor.stream.StreamExtractor;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public interface CommentsInfoItemExtractor extends InfoItemExtractor {

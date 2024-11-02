@@ -11,6 +11,7 @@ import org.schabi.newpipe.extractor.stream.Description;
 import org.schabi.newpipe.extractor.utils.JsonUtils;
 import org.schabi.newpipe.extractor.utils.Utils;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import static org.schabi.newpipe.extractor.comments.CommentsInfoItem.UNKNOWN_REPLY_COUNT;
@@ -27,10 +28,12 @@ public class YoutubeCommentsInfoItemExtractor implements CommentsInfoItemExtract
     @Nonnull
     private final TimeAgoParser timeAgoParser;
 
-    public YoutubeCommentsInfoItemExtractor(final JsonObject json,
-                                            final String url,
-                                            final TimeAgoParser timeAgoParser) {
-        this.json = json;
+    public YoutubeCommentsInfoItemExtractor(@Nonnull final JsonObject commentRenderer,
+                                            @Nullable final JsonObject commentRepliesRenderer,
+                                            @Nonnull final String url,
+                                            @Nonnull final TimeAgoParser timeAgoParser) {
+        this.commentRenderer = commentRenderer;
+        this.commentRepliesRenderer = commentRepliesRenderer;
         this.url = url;
         this.timeAgoParser = timeAgoParser;
     }
@@ -43,7 +46,7 @@ public class YoutubeCommentsInfoItemExtractor implements CommentsInfoItemExtract
     @Override
     public String getThumbnailUrl() throws ParsingException {
         try {
-            final JsonArray arr = JsonUtils.getArray(commentRenderer(),
+            final JsonArray arr = JsonUtils.getArray(commentRenderer,
                     "authorThumbnail.thumbnails");
             return JsonUtils.getString(arr.getObject(2), "url");
         } catch (final Exception e) {
@@ -55,7 +58,7 @@ public class YoutubeCommentsInfoItemExtractor implements CommentsInfoItemExtract
     @Override
     public String getName() throws ParsingException {
         try {
-            return getTextFromObject(JsonUtils.getObject(commentRenderer(), "authorText"));
+            return getTextFromObject(JsonUtils.getObject(commentRenderer, "authorText"));
         } catch (final Exception e) {
             return "";
         }
@@ -64,7 +67,7 @@ public class YoutubeCommentsInfoItemExtractor implements CommentsInfoItemExtract
     @Override
     public String getTextualUploadDate() throws ParsingException {
         try {
-            return getTextFromObject(JsonUtils.getObject(commentRenderer(),
+            return getTextFromObject(JsonUtils.getObject(commentRenderer,
                     "publishedTimeText"));
         } catch (final Exception e) {
             throw new ParsingException("Could not get publishedTimeText", e);
@@ -102,7 +105,7 @@ public class YoutubeCommentsInfoItemExtractor implements CommentsInfoItemExtract
         // Try first to get the exact like count by using the accessibility data
         final String likeCount;
         try {
-            likeCount = Utils.removeNonDigitCharacters(JsonUtils.getString(commentRenderer(),
+            likeCount = Utils.removeNonDigitCharacters(JsonUtils.getString(commentRenderer,
                     "actionButtons.commentActionButtonsRenderer.likeButton.toggleButtonRenderer"
                             + ".accessibilityData.accessibilityData.label"));
         } catch (final Exception e) {
@@ -154,11 +157,11 @@ public class YoutubeCommentsInfoItemExtractor implements CommentsInfoItemExtract
          */
         try {
             // If a comment has no likes voteCount is not set
-            if (!commentRenderer().has("voteCount")) {
+            if (!commentRenderer.has("voteCount")) {
                 return "";
             }
 
-            final JsonObject voteCountObj = JsonUtils.getObject(commentRenderer(), "voteCount");
+            final JsonObject voteCountObj = JsonUtils.getObject(commentRenderer, "voteCount");
             if (voteCountObj.isEmpty()) {
                 return "";
             }
@@ -172,7 +175,7 @@ public class YoutubeCommentsInfoItemExtractor implements CommentsInfoItemExtract
     @Override
     public Description getCommentText() throws ParsingException {
         try {
-            final JsonObject contentText = JsonUtils.getObject(commentRenderer(), "contentText");
+            final JsonObject contentText = JsonUtils.getObject(commentRenderer, "contentText");
             if (contentText.isEmpty()) {
                 // completely empty comments as described in
                 // https://github.com/TeamNewPipe/NewPipeExtractor/issues/380#issuecomment-668808584
@@ -192,7 +195,7 @@ public class YoutubeCommentsInfoItemExtractor implements CommentsInfoItemExtract
     @Override
     public String getCommentId() throws ParsingException {
         try {
-            return JsonUtils.getString(commentRenderer(), "commentId");
+            return JsonUtils.getString(commentRenderer, "commentId");
         } catch (final Exception e) {
             throw new ParsingException("Could not get comment id", e);
         }
@@ -201,7 +204,7 @@ public class YoutubeCommentsInfoItemExtractor implements CommentsInfoItemExtract
     @Override
     public String getUploaderAvatarUrl() throws ParsingException {
         try {
-            final JsonArray arr = JsonUtils.getArray(commentRenderer(),
+            final JsonArray arr = JsonUtils.getArray(commentRenderer,
                     "authorThumbnail.thumbnails");
             return JsonUtils.getString(arr.getObject(2), "url");
         } catch (final Exception e) {
@@ -222,13 +225,13 @@ public class YoutubeCommentsInfoItemExtractor implements CommentsInfoItemExtract
     }
 
     public boolean isUploaderVerified() throws ParsingException {
-        return commentRenderer().has("authorCommentBadge");
+        return commentRenderer.has("authorCommentBadge");
     }
 
     @Override
     public String getUploaderName() throws ParsingException {
         try {
-            return getTextFromObject(JsonUtils.getObject(commentRenderer(), "authorText"));
+            return getTextFromObject(JsonUtils.getObject(commentRenderer, "authorText"));
         } catch (final Exception e) {
             return "";
         }
@@ -237,7 +240,7 @@ public class YoutubeCommentsInfoItemExtractor implements CommentsInfoItemExtract
     @Override
     public String getUploaderUrl() throws ParsingException {
         try {
-            return "https://www.youtube.com/channel/" + JsonUtils.getString(commentRenderer(),
+            return "https://www.youtube.com/channel/" + JsonUtils.getString(commentRenderer,
                     "authorEndpoint.browseEndpoint.browseId");
         } catch (final Exception e) {
             return "";

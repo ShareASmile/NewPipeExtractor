@@ -8,6 +8,8 @@ import org.schabi.newpipe.extractor.comments.CommentsInfoItemExtractor;
 import org.schabi.newpipe.extractor.exceptions.ParsingException;
 import org.schabi.newpipe.extractor.stream.Description;
 
+import javax.annotation.Nonnull;
+
 public class BandcampCommentsInfoItemExtractor implements CommentsInfoItemExtractor {
 
     private final JsonObject review;
