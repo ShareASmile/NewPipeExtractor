@@ -152,6 +152,12 @@ class YoutubeCommentsEUVMInfoItemExtractor implements CommentsInfoItemExtractor 
     }
 
     @Override
+    public String getUploaderName() throws ParsingException {
+        return commentEntityPayload.getObject(AUTHOR)
+                .getString("displayName");
+    }
+
+    @Override
     public boolean isHeartedByUploader() {
         return "TOOLBAR_HEART_STATE_HEARTED".equals(
                 engagementToolbarStateEntityPayload.getString("heartState"));
