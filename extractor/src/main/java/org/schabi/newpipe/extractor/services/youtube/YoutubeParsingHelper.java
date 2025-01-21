@@ -1174,6 +1174,13 @@ public final class YoutubeParsingHelper {
     @Nonnull
     public static JsonBuilder<JsonObject> prepareDesktopJsonBuilder(
             @Nonnull final Localization localization,
+            @Nonnull final ContentCountry contentCountry)
+            throws IOException, ExtractionException {
+        return prepareDesktopJsonBuilder(localization, contentCountry, null);
+    }
+    @Nonnull
+    public static JsonBuilder<JsonObject> prepareDesktopJsonBuilder(
+            @Nonnull final Localization localization,
             @Nonnull final ContentCountry contentCountry,
             @Nullable final String visitorData)
             throws IOException, ExtractionException {
