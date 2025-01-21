@@ -48,6 +48,7 @@ import org.schabi.newpipe.extractor.stream.AudioTrackType;
 import org.schabi.newpipe.extractor.stream.Description;
 import org.schabi.newpipe.extractor.utils.JsonUtils;
 import org.schabi.newpipe.extractor.utils.Parser;
+import org.schabi.newpipe.extractor.utils.ProtoBuilder;
 import org.schabi.newpipe.extractor.utils.RandomStringFromAlphabetGenerator;
 import org.schabi.newpipe.extractor.utils.Utils;
 
@@ -55,7 +56,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -187,7 +187,7 @@ public final class YoutubeParsingHelper {
      * Store page of the YouTube app</a>, in the {@code What’s New} section.
      * </p>
      */
-    private static final String IOS_YOUTUBE_CLIENT_VERSION = "19.28.1";
+    private static final String IOS_YOUTUBE_CLIENT_VERSION = "19.45.4";
 
     /**
      * The InnerTube API key used by the {@code iOS} client. Found with the help of
@@ -204,7 +204,7 @@ public final class YoutubeParsingHelper {
     private static String key;
 
     private static final String[] HARDCODED_YOUTUBE_MUSIC_KEY =
-            {"AIzaSyC9XL3ZjWddXya6X74dJoCTL-WEYFDNX30", "67", "1.20220808.01.00"};
+            {"AIzaSyC9XL3ZjWddXya6X74dJoCTL-WEYFDNX30", "67", "1.20231204.01.00"};
     private static String[] youtubeMusicKey;
 
     private static boolean keyAndVersionExtracted = false;
@@ -228,7 +228,7 @@ public final class YoutubeParsingHelper {
             "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 
     /**
-     * The device machine id for the iPhone 13, used to get 60fps with the {@code iOS} client.
+     * The device machine id for the iPhone 16, used to get 60fps with the {@code iOS} client.
      *
      * <p>
      * See <a href="https://gist.github.com/adamawolf/3048717">this GitHub Gist</a> for more
@@ -237,7 +237,7 @@ public final class YoutubeParsingHelper {
      */
     private static final String IOS_DEVICE_MODEL = "iPhone16,2";
 
-    private static Random numberGenerator = new SecureRandom();
+    private static Random numberGenerator = new Random();
 
     private static final String FEED_BASE_CHANNEL_ID =
             "https://www.youtube.com/feeds/videos.xml?channel_id=";
@@ -313,6 +313,23 @@ public final class YoutubeParsingHelper {
 
     public static boolean isY2ubeURL(@Nonnull final URL url) {
         return url.getHost().equalsIgnoreCase("y2u.be");
+    }
+
+    public static String randomVisitorData(final ContentCountry country) {
+        final ProtoBuilder pbE2 = new ProtoBuilder();
+        pbE2.string(2, "");
+        pbE2.varint(4, numberGenerator.nextInt(255) + 1);
+
+        final ProtoBuilder pbE = new ProtoBuilder();
+        pbE.string(1, country.getCountryCode());
+        pbE.bytes(2, pbE2.toBytes());
+
+        final ProtoBuilder pb = new ProtoBuilder();
+        pb.string(1, RandomStringFromAlphabetGenerator.generate(
+                CONTENT_PLAYBACK_NONCE_ALPHABET, 11, numberGenerator));
+        pb.varint(5, System.currentTimeMillis() / 1000 - numberGenerator.nextInt(600000));
+        pb.bytes(6, pbE.toBytes());
+        return pb.toUrlencodedBase64();
     }
 
     /**
@@ -1158,7 +1175,13 @@ public final class YoutubeParsingHelper {
     public static JsonBuilder<JsonObject> prepareDesktopJsonBuilder(
             @Nonnull final Localization localization,
             @Nonnull final ContentCountry contentCountry)
+            @Nullable final String visitorData)
             throws IOException, ExtractionException {
+        String vData = visitorData;
+        if (vData == null) {
+            vData = randomVisitorData(contentCountry);
+        }
+
         // @formatter:off
         return JsonObject.builder()
                 .object("context")
@@ -1169,6 +1192,7 @@ public final class YoutubeParsingHelper {
                         .value("clientVersion", getClientVersion())
                         .value("originalUrl", "https://www.youtube.com")
                         .value("platform", "DESKTOP")
+                        .value("visitorData", vData)
                     .end()
                     .object("request")
                         .array("internalExperimentFlags")
@@ -1176,8 +1200,8 @@ public final class YoutubeParsingHelper {
                         .value("useSsl", true)
                     .end()
                     .object("user")
-                        // TO DO: provide a way to enable restricted mode with:
-                        // .value("enableSafetyMode", boolean)
+                        // TODO: provide a way to enable restricted mode with:
+                        //  .value("enableSafetyMode", boolean)
                         .value("lockedSafetyMode", false)
                     .end()
                 .end();
@@ -1239,8 +1263,9 @@ public final class YoutubeParsingHelper {
                         // The value of this field seems to use the following structure:
                         // "iOS version.0.build version"
                         // The build version corresponding to the iOS version used can be found on
-                        // https://www.theiphonewiki.com/wiki/Firmware/iPhone/15.x#iPhone_13
-                        .value("osVersion", "17.5.1.21F90")
+                        // https://theapplewiki.com/wiki/Firmware/iPhone/18.x#iPhone_16_Pro_Max
+                        .value("osVersion", "18.1.0.22B83")
+                        .value("visitorData", randomVisitorData(contentCountry))
                         .value("hl", localization.getLocalizationCode())
                         .value("gl", contentCountry.getCountryCode())
                     .end()
@@ -1342,9 +1367,9 @@ public final class YoutubeParsingHelper {
      */
     @Nonnull
     public static String getAndroidUserAgent(@Nullable final Localization localization) {
-        // Spoofing an Android 12 device with the hardcoded version of the Android app
+        // Spoofing an Android 14 device with the hardcoded version of the Android app
         return "com.google.android.youtube/" + ANDROID_YOUTUBE_CLIENT_VERSION
-                + " (Linux; U; Android 12; "
+                + " (Linux; U; Android 14; "
                 + (localization != null ? localization : Localization.DEFAULT).getCountryCode()
                 + ") gzip";
     }
@@ -1364,9 +1389,9 @@ public final class YoutubeParsingHelper {
      */
     @Nonnull
     public static String getIosUserAgent(@Nullable final Localization localization) {
-        // Spoofing an iPhone 13 running iOS 15.6 with the hardcoded version of the iOS app
+        // Spoofing an iPhone 16 running iOS 18.1 with the hardcoded version of the iOS app
         return "com.google.ios.youtube/" + IOS_YOUTUBE_CLIENT_VERSION
-                + "(" + IOS_DEVICE_MODEL + "; U; CPU iOS 17_5_1 like Mac OS X; "
+                + "(" + IOS_DEVICE_MODEL + "; U; CPU iOS 18_1_0 like Mac OS X; "
                 + (localization != null ? localization : Localization.DEFAULT).getCountryCode()
                 + ")";
     }
@@ -1486,8 +1511,10 @@ public final class YoutubeParsingHelper {
             final String alertText = getTextFromObject(alertRenderer.getObject("text"));
             final String alertType = alertRenderer.getString("type", "");
             if (alertType.equalsIgnoreCase("ERROR")) {
-                if (alertText != null && alertText.contains("This account has been terminated")) {
-                    if (alertText.contains("violation") || alertText.contains("violating")
+                if (alertText != null
+                        && (alertText.contains("This account has been terminated")
+                        || alertText.contains("This channel was removed"))) {
+                    if (alertText.matches(".*violat(ed|ion|ing).*")
                             || alertText.contains("infringement")) {
                         // Possible error messages:
                         // "This account has been terminated for a violation of YouTube's Terms of
@@ -1509,6 +1536,7 @@ public final class YoutubeParsingHelper {
                         //     the user posted."
                         // "This account has been terminated because it is linked to an account that
                         //     received multiple third-party claims of copyright infringement."
+                        // "This channel was removed because it violated our Community Guidelines."
                         throw new AccountTerminatedException(alertText,
                                 AccountTerminatedException.Reason.VIOLATION);
                     } else {
