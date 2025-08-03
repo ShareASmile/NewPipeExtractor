@@ -9,13 +9,16 @@ on:
         options:
           - MOCK
           - REAL
-  schedule:
-      # once per day
-    - cron: 0 0 * * *
+  #schedule:
+  #    # once per day
+  #  - cron: 0 0 * * *
   push:
     branches:
       - dev
+      - dev1
+      - dev247
       - master
+      - skytube
   pull_request:
 
 permissions:
