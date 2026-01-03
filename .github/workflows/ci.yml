@@ -9,9 +9,9 @@ on:
         options:
           - MOCK
           - REAL
-  schedule:
-      # once per day
-    - cron: 0 0 * * *
+#  schedule:
+#      # once per day
+#    - cron: 0 0 * * *
   push:
     branches:
       - dev
@@ -61,10 +61,3 @@ jobs:
             --stacktrace \
             -Ddownloader=$downloader_type \
             -Dcom.google.protobuf.error_on_unsafe_pre22_gencode
-
-      - name: Upload test reports when failure occurs
-        uses: actions/upload-artifact@v6
-        if: failure()
-        with:
-          name: NewPipeExtractor-test-reports
-          path: extractor/build/reports/tests/test/**
